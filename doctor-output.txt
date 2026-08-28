@@ -1,1 +1,20 @@
-{ echo "--- theme dir ---"; ls -ld ~/.config/omarchy/themes/aether; echo "--- background link ---"; readlink ~/.local/state/omarchy/current/background; echo "--- staged backgrounds ---"; ls ~/.local/state/omarchy/current/theme/backgrounds/; } 2>&1 | tee ~/doctor.txt
+~ ❯ { echo "--- theme dir ---"; ls -ld ~/.config/omarchy/themes/aether; echo "--- background link ---"; readlink ~/.local/state/omarchy/current/background; echo "--- staged backgrounds ---"; ls ~/.local/state/omarchy/current/theme/backgrounds/; } 2>&1 | tee ~/doctor.txt
+--- theme dir ---
+Permissions Size User       Date Modified Name
+drwxr-xr-x     - tommie0079 28 Aug 10:45  /home/tommie0079/.config/omarchy/themes/aether
+--- background link ---
+/home/tommie0079/.local/state/omarchy/current/theme/backgrounds/0-winding-road.jpg
+--- staged backgrounds ---
+Permissions Size User       Date Modified Name
+.rw-r--r--  4.4M tommie0079 28 Aug 09:20  0-winding-road.jpg
+.rw-r--r--  3.8M tommie0079 28 Aug 09:20  1-quattro.jpg
+.rw-r--r--  2.9M tommie0079 28 Aug 09:20  2-swirl-buck.jpg
+.rw-r--r--  2.8M tommie0079 28 Aug 09:20  3-sunset-lake.png
+.rw-r--r--  2.3M tommie0079 28 Aug 09:20  4-omakub.jpg
+.rw-r--r--  1.4M tommie0079 28 Aug 09:20  5-oma-cityscape.jpg
+.rw-r--r--  458k tommie0079 28 Aug 09:20  6-oma.jpg
+.rw-r--r--  4.5k tommie0079 28 Aug 09:20  omarchy.png
+
+~ ❯ ^C
+
+~ ✗ ^C
