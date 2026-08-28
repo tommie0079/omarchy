@@ -10,6 +10,8 @@
 #   ./install.sh --yes        no confirmation prompt
 #   ./install.sh --no-plugins skip cloning the third-party shell plugins
 #   ./install.sh --no-theme   install the theme but leave the active one alone
+#   ./install.sh --link-aether follow this machine's Aether output instead of the
+#                             vendored theme (for the machine that generates it)
 
 set -euo pipefail
 
@@ -22,11 +24,13 @@ stamp=$(date +%Y%m%d%H%M%S)
 assume_yes=0
 want_plugins=1
 want_theme=1
+link_aether=0
 for arg in "$@"; do
   case $arg in
     --yes | -y) assume_yes=1 ;;
     --no-plugins) want_plugins=0 ;;
     --no-theme) want_theme=0 ;;
+    --link-aether) link_aether=1 ;;
     *) printf 'Unknown option: %s\n' "$arg" >&2; exit 2 ;;
   esac
 done
@@ -127,20 +131,29 @@ fi
 
 # --- theme -------------------------------------------------------------------
 
-# On a machine running Aether, ~/.config/aether/theme is generated output and is
-# the copy worth following, so the theme is a symlink to it and regenerating
-# picks up automatically. Anywhere else there is nothing to follow, so the
-# vendored copy is installed directly and the theme works without Aether.
+# Install the vendored copy by default: reproducing the theme as published is
+# what this repo is for. Following ~/.config/aether/theme instead only makes
+# sense on the machine whose Aether generates it -- anywhere else that directory
+# holds a different palette and none of these backgrounds, so linking to it
+# silently substitutes another theme and the wallpaper never appears.
 mkdir -p "$config_dir/omarchy/themes"
 theme_target="$config_dir/omarchy/themes/aether"
 
-if [[ -d $config_dir/aether/theme ]]; then
+if [[ $link_aether -eq 1 && ! -d $config_dir/aether/theme ]]; then
+  warn "--link-aether given but $config_dir/aether/theme does not exist.
+    Installing the vendored theme instead."
+  link_aether=0
+fi
+
+if [[ $link_aether -eq 1 ]]; then
   rm -rf "$theme_target"
   ln -sfn "$config_dir/aether/theme" "$theme_target"
   info "Linked the aether theme to Aether's generated output."
 else
-  # A stale symlink would make cp write through it into Aether's directory.
-  [[ -L $theme_target ]] && rm -f "$theme_target"
+  # A leftover symlink would make cp write through it into Aether's directory.
+  if [[ -L $theme_target ]]; then
+    rm -f "$theme_target"
+  fi
   mkdir -p "$theme_target"
   cp -a "$repo_dir/themes/aether/." "$theme_target/"
   info "Installed the aether theme."

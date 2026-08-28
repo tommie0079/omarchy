@@ -55,6 +55,7 @@ Flags:
 | `--yes`, `-y` | Skip the confirmation prompt |
 | `--no-plugins` | Don't clone the third-party shell plugins |
 | `--no-theme` | Install the theme but leave the active one alone |
+| `--link-aether` | Follow this machine's Aether output instead of the vendored theme |
 
 Log out and back in afterwards — the bar reads `shell.json` and loads plugins at
 startup, so `hyprctl reload` alone won't pick those up.
@@ -99,12 +100,16 @@ Applying a theme needs a running Hyprland session — with no compositor,
 `omarchy-theme-set` blocks rather than failing. The installer detects that and
 tells you to run the command above after logging in, rather than hanging.
 
-How it installs depends on the machine:
+The copy in this repo is always what gets installed, so the theme is the same
+everywhere — palette, icons and wallpaper together. Omarchy stages a theme's
+`backgrounds/` into `~/.local/state/omarchy/current/theme/backgrounds/` and picks
+the wallpaper from there, so nothing needs copying anywhere else by hand.
 
-- **With Aether installed**, `~/.config/omarchy/themes/aether` is symlinked to
-  `~/.config/aether/theme`, so regenerating the theme takes effect immediately.
-- **Without Aether**, the copy in this repo is installed directly. The theme
-  works fully; it just won't regenerate.
+`--link-aether` is the exception, and only useful on the machine whose Aether
+generates this theme: it symlinks `~/.config/omarchy/themes/aether` to
+`~/.config/aether/theme` so regenerating takes effect immediately. On any other
+machine that directory holds a different palette and none of these backgrounds,
+which is why it is not the default.
 
 To use your own wallpaper, drop an image in
 `~/.config/omarchy/themes/aether/backgrounds/` and run `omarchy theme set aether`
