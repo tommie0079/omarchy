@@ -1,0 +1,42 @@
+#!/bin/bash
+
+# Omarchy's own lock script (/usr/share/omarchy/bin/omarchy-system-lock) always
+# resets every keyboard to the first layout (kb_layout's "us") right after
+# locking, regardless of what was active before. That makes the lock screen
+# default to English even when Norwegian was active via the Alt+Shift toggle.
+#
+# This watches for the unlock -> lock transition and, a moment after Omarchy's
+# own reset lands, switches back to whichever layout was actually in use right
+# before the screen locked.
+
+state_file="${XDG_RUNTIME_DIR:-/tmp}/omarchy-last-kb-layout"
+was_locked=0
+
+typed_layout_index() {
+  hyprctl -j devices 2>/dev/null | jq -r '
+    [.keyboards[]
+      | select(.name | test("^(hl-virtual-keyboard|power-button|sleep-button|lid-switch|video-bus)") | not)]
+    as $typed
+    | (($typed | map(select(.main == true))) + $typed)[0].active_layout_index // empty
+  '
+}
+
+while true; do
+  if omarchy-hyprland-session-locked; then
+    if [[ $was_locked -eq 0 ]]; then
+      # Just transitioned to locked. Give omarchy-system-lock's own reset a
+      # beat to land, then restore the layout that was active a moment ago.
+      sleep 0.3
+      last=$(cat "$state_file" 2>/dev/null)
+      if [[ -n $last && $last != "0" ]]; then
+        hyprctl switchxkblayout all "$last" >/dev/null 2>&1
+      fi
+    fi
+    was_locked=1
+  else
+    was_locked=0
+    idx=$(typed_layout_index)
+    [[ -n $idx ]] && printf '%s' "$idx" >"$state_file"
+  fi
+  sleep 0.4
+done
