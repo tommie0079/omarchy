@@ -62,36 +62,40 @@ startup, so `hyprctl reload` alone won't pick those up.
 
 ## If the theme looks wrong
 
-Most often this is the wallpaper: the colours apply but the background stays
-blank. Paste this anywhere — it needs no clone and changes nothing, and it saves
-a copy to `~/doctor.txt`:
+Usually the colours apply but the wallpaper stays blank. Two things cause that:
+the theme is installed but never became the *active* one, or it is active but
+its backgrounds were not staged.
+
+**Run this.** It applies the theme and reports what happened, saving a copy to
+`~/doctor2.txt`. Needs no clone — paste it as-is:
+
+```bash
+{ echo "--- applying ---"; omarchy theme set aether; echo "exit=$?"; echo "--- active theme ---"; cat ~/.local/state/omarchy/current/theme.name; echo "--- background link ---"; readlink ~/.local/state/omarchy/current/background; echo "--- installed theme ---"; ls -la ~/.config/omarchy/themes/aether/; echo "--- its backgrounds ---"; ls -la ~/.config/omarchy/themes/aether/backgrounds/; echo "--- staged backgrounds ---"; ls -la ~/.local/state/omarchy/current/theme/backgrounds/; } 2>&1 | tee ~/doctor2.txt
+```
+
+From a clone, `./fix-theme.sh` does the same thing.
+
+Reading the result:
+
+- **`exit=` is not 0** — applying failed, and the line above it says why.
+- **active theme is not `aether`** — it was applied and then reverted or
+  overridden by something else.
+- **staged backgrounds lists other images** (`0-winding-road.jpg` and friends are
+  Tokyo Night's) — a different theme is active, so your wallpaper was never in
+  play. This is the common one.
+- **staged backgrounds is right but the screen is not** — the shell is not
+  repainting. Log out and back in.
+
+To inspect without changing anything, this is read-only:
 
 ```bash
 { echo "--- theme dir ---"; ls -ld ~/.config/omarchy/themes/aether; echo "--- background link ---"; readlink ~/.local/state/omarchy/current/background; echo "--- staged backgrounds ---"; ls ~/.local/state/omarchy/current/theme/backgrounds/; } 2>&1 | tee ~/doctor.txt
 ```
 
-Reading the result:
-
-- **theme dir** — a `symlink` here means this machine is following its own Aether
-  output instead of the theme from this repo. Re-run `./install.sh`.
-- **background link** — if it points at a path that does not exist on this
-  machine, it is stale from an earlier install. A broken link renders as nothing.
-- **staged backgrounds** — should list the wallpaper. This is the directory
-  Omarchy actually picks from.
-
-If the wallpaper is listed but the screen is still blank, set it directly:
+If the wallpaper is staged but not showing, set it directly:
 
 ```bash
 omarchy theme bg set ~/.local/state/omarchy/current/theme/backgrounds/lonningsburger-neon.png
-```
-
-That repoints the link and pushes it to the running shell. If that succeeds and
-nothing changes, the shell is not rendering — log out and back in.
-
-From a clone, `./doctor.sh` reports the same things with more context:
-
-```bash
-./doctor.sh 2>&1 | tee ~/doctor.txt
 ```
 
 ## Rolling back
