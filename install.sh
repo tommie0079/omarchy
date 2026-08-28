@@ -123,14 +123,28 @@ else
   info "Skipped the third-party plugins (--no-plugins)."
 fi
 
-# --- theme symlink -----------------------------------------------------------
+# --- theme -------------------------------------------------------------------
 
-# Points at a generated theme directory, so it is only worth linking when that
-# directory actually exists on this machine.
+# On a machine running Aether, ~/.config/aether/theme is generated output and is
+# the copy worth following, so the theme is a symlink to it and regenerating
+# picks up automatically. Anywhere else there is nothing to follow, so the
+# vendored copy is installed directly and the theme works without Aether.
+mkdir -p "$config_dir/omarchy/themes"
+theme_target="$config_dir/omarchy/themes/aether"
+
 if [[ -d $config_dir/aether/theme ]]; then
-  ln -sfn "$config_dir/aether/theme" "$config_dir/omarchy/themes/aether"
-  info "Linked the aether theme."
+  rm -rf "$theme_target"
+  ln -sfn "$config_dir/aether/theme" "$theme_target"
+  info "Linked the aether theme to Aether's generated output."
+else
+  # A stale symlink would make cp write through it into Aether's directory.
+  [[ -L $theme_target ]] && rm -f "$theme_target"
+  mkdir -p "$theme_target"
+  cp -a "$repo_dir/themes/aether/." "$theme_target/"
+  info "Installed the aether theme."
 fi
+
+info "Apply it with: omarchy theme set aether"
 
 # --- apply -------------------------------------------------------------------
 

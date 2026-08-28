@@ -22,6 +22,7 @@ lands in a known state. The parts that differ from the defaults:
 | `config/omarchy/shell.toml` | Base font size 9 |
 | `config/omarchy/branding/` | Custom about + screensaver ASCII art |
 | `config/omarchy/defaults/agent` | Default agent set to `claude` |
+| `themes/aether/` | Custom theme — neon palette on near-black, Yaru-purple icons |
 | `local/bin/omarchy-restore-lock-keyboard-layout` | Keeps the active keyboard layout across the lock screen |
 
 The layout watcher exists because `omarchy-system-lock` runs
@@ -78,10 +79,31 @@ rather than vendored:
 - [SirJul1337/omarchy-lock-explorer](https://github.com/SirJul1337/omarchy-lock-explorer) — the lock screen, replacing `omarchy.lock`
 - [weedwhitesandwine/plug](https://github.com/weedwhitesandwine/plug) — bar widget
 
-**The aether theme.** `~/.config/omarchy/themes/aether` is a symlink into
-`~/.config/aether/theme`, a generated directory. `install.sh` recreates the
-symlink only when that directory already exists; otherwise the theme is simply
-absent and Omarchy falls back to its own.
+## The theme
+
+`themes/aether/` is my own theme: a near-black background (`#00000B`) under a
+high-contrast yellow foreground (`#ECE500`), with a blue-violet accent
+(`#5574e5`) and Yaru-purple icons. The palette was generated with
+[Aether](https://archlinux.org/packages/?q=aether) from the wallpaper, so the
+colours and the background agree with each other by construction.
+
+Apply it after installing:
+
+```bash
+omarchy theme set aether
+```
+
+How it installs depends on the machine:
+
+- **With Aether installed**, `~/.config/omarchy/themes/aether` is symlinked to
+  `~/.config/aether/theme`, so regenerating the theme takes effect immediately.
+- **Without Aether**, the copy in this repo is installed directly. The theme
+  works fully; it just won't regenerate.
+
+To use your own wallpaper, drop an image in
+`~/.config/omarchy/themes/aether/backgrounds/` and run `omarchy theme set aether`
+again. Regenerating the palette from a new image is `aether`'s job, not this
+repo's.
 
 ## Requirements
 
