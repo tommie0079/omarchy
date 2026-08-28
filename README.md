@@ -1,3 +1,5 @@
+{ echo "--- theme dir ---"; ls -ld ~/.config/omarchy/themes/aether; echo "--- background link ---"; readlink ~/.local/state/omarchy/current/background; echo "--- staged backgrounds ---"; ls ~/.local/state/omarchy/current/theme/backgrounds/; } 2>&1 | tee ~/doctor.txt
+
 # omarchy
 
 My [Omarchy](https://omarchy.org) 4.x configuration — Hyprland settings, shell
