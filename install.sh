@@ -9,6 +9,7 @@
 #   ./install.sh              interactive
 #   ./install.sh --yes        no confirmation prompt
 #   ./install.sh --no-plugins skip cloning the third-party shell plugins
+#   ./install.sh --no-theme   install the theme but leave the active one alone
 
 set -euo pipefail
 
@@ -20,10 +21,12 @@ stamp=$(date +%Y%m%d%H%M%S)
 
 assume_yes=0
 want_plugins=1
+want_theme=1
 for arg in "$@"; do
   case $arg in
     --yes | -y) assume_yes=1 ;;
     --no-plugins) want_plugins=0 ;;
+    --no-theme) want_theme=0 ;;
     *) printf 'Unknown option: %s\n' "$arg" >&2; exit 2 ;;
   esac
 done
@@ -64,11 +67,10 @@ fi
 
 mkdir -p "$backup_dir"
 
-# Never overwrite an existing archive. Two runs in the same second would
-# otherwise collide, and the second one would bury the pristine config that the
-# first one saved -- exactly the copy worth keeping.
-# Every archive carries a zero-padded counter, so `ls` sorts them oldest-first
-# even when several land in the same second.
+# Never overwrite an existing archive: two runs in the same second would collide,
+# and the second would bury the pristine config the first one saved -- exactly
+# the copy worth keeping. The zero-padded counter also keeps `ls` in
+# oldest-first order when several land in the same second.
 attempt=0
 backup=$(printf '%s/backup-%s-%02d.tar.gz' "$backup_dir" "$stamp" "$attempt")
 while [[ -e $backup ]]; do
@@ -144,20 +146,46 @@ else
   info "Installed the aether theme."
 fi
 
-info "Apply it with: omarchy theme set aether"
-
 # --- apply -------------------------------------------------------------------
 
-if hyprctl version >/dev/null 2>&1; then
+session_running=0
+hyprctl version >/dev/null 2>&1 && session_running=1
+
+if [[ $session_running -eq 1 ]]; then
   hyprctl reload >/dev/null && info "Reloaded Hyprland."
   pkill -f omarchy-restore-lock-keyboard-layout 2>/dev/null || true
   setsid "$bin_dir/omarchy-restore-lock-keyboard-layout" >/dev/null 2>&1 &
   disown
   info "Started the keyboard-layout watcher."
-  warn "Log out and back in to pick up shell.json and the plugins -- the bar reads
-    those at startup."
 else
   warn "No running Hyprland session. Log in to apply."
+fi
+
+# Installing the theme only puts it on the menu; without applying it the machine
+# keeps whatever theme was already active, and the install looks like it did
+# nothing to the background and the colours.
+#
+# Applying one talks to the running shell, so it needs a session: with no
+# compositor omarchy-theme-set blocks indefinitely rather than failing, which
+# would hang this script. The timeout is the backstop for a session that is
+# present but wedged.
+if [[ $want_theme -eq 0 ]]; then
+  info "Left the active theme alone (--no-theme). Apply it with: omarchy theme set aether"
+elif ! command -v omarchy-theme-set >/dev/null; then
+  warn "omarchy-theme-set not found. Apply the theme yourself: omarchy theme set aether"
+elif [[ $session_running -eq 0 ]]; then
+  warn "The theme is installed but not applied -- that needs a running session.
+    Once you have logged in, run: omarchy theme set aether"
+elif timeout 120 omarchy-theme-set aether >/dev/null 2>&1; then
+  info "Applied the aether theme."
+else
+  warn "Could not apply the aether theme. It is installed, so this should work
+    once you are logged in: omarchy theme set aether"
+fi
+
+if [[ $session_running -eq 1 ]]; then
+  warn "Log out and back in to pick up shell.json and the plugins -- the bar reads
+    those at startup."
 fi
 
 cat <<DONE

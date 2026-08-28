@@ -42,8 +42,8 @@ cd omarchy
 It archives your current `~/.config/hypr` and `~/.config/omarchy` to
 `~/.local/state/omarchy-dotfiles/` before writing anything, then copies the
 config into place, installs the watcher into `~/.local/bin`, clones the
-third-party shell plugins, and reloads Hyprland. It prints the exact `tar`
-command to undo itself when it finishes.
+third-party shell plugins, reloads Hyprland and applies the theme. It prints the
+exact `tar` command to undo itself when it finishes.
 
 Files are copied over the existing directories rather than replacing them, so
 anything else living in those directories survives.
@@ -54,6 +54,7 @@ Flags:
 | --- | --- |
 | `--yes`, `-y` | Skip the confirmation prompt |
 | `--no-plugins` | Don't clone the third-party shell plugins |
+| `--no-theme` | Install the theme but leave the active one alone |
 
 Log out and back in afterwards — the bar reads `shell.json` and loads plugins at
 startup, so `hyprctl reload` alone won't pick those up.
@@ -87,11 +88,16 @@ high-contrast yellow foreground (`#ECE500`), with a blue-violet accent
 [Aether](https://archlinux.org/packages/?q=aether) from the wallpaper, so the
 colours and the background agree with each other by construction.
 
-Apply it after installing:
+`install.sh` applies it for you. Pass `--no-theme` to install it without
+switching away from your current theme, and apply it later with:
 
 ```bash
 omarchy theme set aether
 ```
+
+Applying a theme needs a running Hyprland session — with no compositor,
+`omarchy-theme-set` blocks rather than failing. The installer detects that and
+tells you to run the command above after logging in, rather than hanging.
 
 How it installs depends on the machine:
 
