@@ -189,11 +189,22 @@ elif ! command -v omarchy-theme-set >/dev/null; then
 elif [[ $session_running -eq 0 ]]; then
   warn "The theme is installed but not applied -- that needs a running session.
     Once you have logged in, run: omarchy theme set aether"
-elif timeout 120 omarchy-theme-set aether >/dev/null 2>&1; then
+elif theme_output=$(timeout 120 omarchy-theme-set aether 2>&1); then
   info "Applied the aether theme."
 else
-  warn "Could not apply the aether theme. It is installed, so this should work
-    once you are logged in: omarchy theme set aether"
+  theme_status=$?
+  # Show what omarchy-theme-set actually said. Swallowing this is what made a
+  # theme that installed but never applied so hard to tell apart from one that
+  # applied and did not render.
+  if [[ $theme_status -eq 124 ]]; then
+    warn "Applying the aether theme timed out after 120s."
+  else
+    warn "Could not apply the aether theme (exit $theme_status)."
+    if [[ -n $theme_output ]]; then
+      printf '%s\n' "$theme_output" | sed 's/^/    /' >&2
+    fi
+  fi
+  warn "The theme is installed. Retry once logged in with: omarchy theme set aether"
 fi
 
 if [[ $session_running -eq 1 ]]; then
