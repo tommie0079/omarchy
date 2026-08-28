@@ -62,9 +62,39 @@ startup, so `hyprctl reload` alone won't pick those up.
 
 ## If the theme looks wrong
 
-`./doctor.sh` reports how the theme is installed, which background Omarchy is
-actually pointing at, and whether the link resolves to a real file. It is
-read-only.
+Most often this is the wallpaper: the colours apply but the background stays
+blank. Run the doctor, which is read-only and saves a copy you can paste
+elsewhere:
+
+```bash
+./doctor.sh 2>&1 | tee ~/doctor.txt
+```
+
+It reports how the theme is installed, which background Omarchy is actually
+pointing at, and whether that link resolves to a real file.
+
+The three checks that carry most of the signal, if you want them on their own:
+
+```bash
+ls -ld ~/.config/omarchy/themes/aether
+readlink ~/.local/state/omarchy/current/background
+ls ~/.local/state/omarchy/current/theme/backgrounds/
+```
+
+- A **symlink** on the first line means this machine is following its own Aether
+  output instead of the theme from this repo. Re-run `./install.sh`.
+- A `readlink` result pointing at a path that does not exist on this machine is a
+  stale link left by an earlier install. A broken link renders as nothing.
+- The third line should list the wallpaper. If it does and the screen is still
+  blank, set it directly:
+
+```bash
+omarchy theme bg set ~/.local/state/omarchy/current/theme/backgrounds/lonningsburger-neon.png
+```
+
+That repoints the link and pushes it to the running shell. If that succeeds and
+the screen still does not change, the shell is not rendering — log out and back
+in.
 
 ## Rolling back
 
