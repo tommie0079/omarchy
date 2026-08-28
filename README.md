@@ -60,6 +60,12 @@ Flags:
 Log out and back in afterwards — the bar reads `shell.json` and loads plugins at
 startup, so `hyprctl reload` alone won't pick those up.
 
+## If the theme looks wrong
+
+`./doctor.sh` reports how the theme is installed, which background Omarchy is
+actually pointing at, and whether the link resolves to a real file. It is
+read-only.
+
 ## Rolling back
 
 Every run leaves a timestamped archive, oldest first:
