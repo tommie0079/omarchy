@@ -63,38 +63,36 @@ startup, so `hyprctl reload` alone won't pick those up.
 ## If the theme looks wrong
 
 Most often this is the wallpaper: the colours apply but the background stays
-blank. Run the doctor, which is read-only and saves a copy you can paste
-elsewhere:
+blank. Paste this anywhere — it needs no clone and changes nothing, and it saves
+a copy to `~/doctor.txt`:
 
 ```bash
-./doctor.sh 2>&1 | tee ~/doctor.txt
+{ echo "--- theme dir ---"; ls -ld ~/.config/omarchy/themes/aether; echo "--- background link ---"; readlink ~/.local/state/omarchy/current/background; echo "--- staged backgrounds ---"; ls ~/.local/state/omarchy/current/theme/backgrounds/; } 2>&1 | tee ~/doctor.txt
 ```
 
-It reports how the theme is installed, which background Omarchy is actually
-pointing at, and whether that link resolves to a real file.
+Reading the result:
 
-The three checks that carry most of the signal, if you want them on their own:
-
-```bash
-ls -ld ~/.config/omarchy/themes/aether
-readlink ~/.local/state/omarchy/current/background
-ls ~/.local/state/omarchy/current/theme/backgrounds/
-```
-
-- A **symlink** on the first line means this machine is following its own Aether
+- **theme dir** — a `symlink` here means this machine is following its own Aether
   output instead of the theme from this repo. Re-run `./install.sh`.
-- A `readlink` result pointing at a path that does not exist on this machine is a
-  stale link left by an earlier install. A broken link renders as nothing.
-- The third line should list the wallpaper. If it does and the screen is still
-  blank, set it directly:
+- **background link** — if it points at a path that does not exist on this
+  machine, it is stale from an earlier install. A broken link renders as nothing.
+- **staged backgrounds** — should list the wallpaper. This is the directory
+  Omarchy actually picks from.
+
+If the wallpaper is listed but the screen is still blank, set it directly:
 
 ```bash
 omarchy theme bg set ~/.local/state/omarchy/current/theme/backgrounds/lonningsburger-neon.png
 ```
 
 That repoints the link and pushes it to the running shell. If that succeeds and
-the screen still does not change, the shell is not rendering — log out and back
-in.
+nothing changes, the shell is not rendering — log out and back in.
+
+From a clone, `./doctor.sh` reports the same things with more context:
+
+```bash
+./doctor.sh 2>&1 | tee ~/doctor.txt
+```
 
 ## Rolling back
 
