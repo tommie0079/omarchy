@@ -109,3 +109,12 @@ repo's.
 
 Omarchy 4.x, whose Hyprland config is Lua (`~/.config/hypr/*.lua`). Omarchy 3.x
 used `.conf` files and will not read any of this.
+
+## License
+
+[MIT](LICENSE), covering the configuration, scripts and colour palette.
+
+The Lønningsburger name and the neon logo in `themes/aether/backgrounds/` are my
+trademarks. The MIT licence grants copyright permissions, not trademark rights —
+so reuse the theme freely, but swap the wallpaper for your own rather than
+shipping the mark as your own branding.
